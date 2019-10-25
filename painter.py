@@ -84,8 +84,19 @@ def draw_ellipse(img, entity, layer, mask):
     mi = ma * entity.dxf.ratio
     s = entity.dxf.start_param * 180 / np.pi
     e = entity.dxf.end_param * 180 / np.pi
+    if entity.dxf.extrusion.z == -1:
+        s = 360 - s
+        e = 360 - e
     cv2.ellipse(img, (int(cx), int(cy)), (int(ma), int(mi)), angle, s, e, color, 1)
-    cv2.ellipse(mask, (int(cx), int(cy)), (int(ma), int(mi)), angle, s, e, (255, 255, 255), -1)
+    cv2.ellipse(mask, (int(cx), int(cy)), (int(ma), int(mi)), angle, s, e, (255, 255, 255), 1)
+    return color
+
+
+def draw_point(img, entity, layer, mask):
+    color = get_color(entity, layer)
+    cx, cy = entity.dxf.location.xyz[:-1]
+    cv2.circle(img, (int(cx), int(cy)), 0, color, 1)
+    cv2.circle(mask, (int(cx), int(cy)), 0, (255, 255, 255), -1)
     return color
 
 
@@ -96,6 +107,7 @@ draw_map = {
     'ARC': draw_arc,
     'CIRCLE': draw_circle,
     'ELLIPSE': draw_ellipse,
+    'POINT': draw_point,
 }
 
 
@@ -118,9 +130,10 @@ def paint(in_path, out_path, config):
         tmp = np.zeros((ymax + ymin, xmax + xmin), np.uint8)
         color = (0, 0, 0)
         for entity in entities:
-            # print(entity.DXFTYPE)
             if entity.DXFTYPE in draw_map:
                 color = draw_map[entity.DXFTYPE](img, entity, layer, tmp)
+            else:
+                print(entity.DXFTYPE)
         contours, hierarchy = cv2.findContours(tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(mask, contours, -1, color, -1)
 
