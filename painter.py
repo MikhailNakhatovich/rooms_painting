@@ -114,7 +114,7 @@ def paint(in_path, out_path, config):
                 if entity.DXFTYPE in draw_map:
                     draw_map[entity.DXFTYPE](img, entity, color, tmp)
                 else:
-                    print(entity.DXFTYPE)
+                    print("%s: %s" % (name, entity.DXFTYPE))
             contours, hierarchy = cv2.findContours(tmp, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cv2.drawContours(mask, contours, -1, color, -1)
 
