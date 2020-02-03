@@ -31,6 +31,10 @@ def wrapper_painting(in_path, out_path, config):
     return 0
 
 
+def is_dxf(path):
+    return path[-len("dxf"):].lower() == "dxf"
+
+
 if __name__ == '__main__':
     args = register_launch_arguments()
 
@@ -47,18 +51,18 @@ if __name__ == '__main__':
 
     cnt_fail = 0
 
-    if os.path.isfile(input_path) and input_path[-len("dxf"):].lower() == "dxf":
+    if os.path.isfile(input_path) and is_dxf(input_path):
         cnt_fail += wrapper_painting(input_path, create_png_path(input_path, output_path), config)
     elif not args.tree:
         files = os.listdir(input_path)
-        for _ in filter(lambda x: x[-len("dxf"):].lower() == "dxf", files):
+        for _ in filter(is_dxf, files):
             cnt_fail += wrapper_painting(os.path.join(input_path, _), create_png_path(_, output_path), config)
     else:
         tree = os.walk(input_path)
         for _ in tree:
             if len(_[1]) > 0:
                 continue
-            for file in filter(lambda x: x[-len("dxf"):].lower() == "dxf", _[2]):
+            for file in filter(is_dxf, _[2]):
                 cnt_fail += wrapper_painting(os.path.join(_[0], file), create_png_path(file, output_path), config)
 
     print("Fail converting: %d" % cnt_fail)
